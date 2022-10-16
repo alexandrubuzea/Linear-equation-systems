@@ -1,0 +1,82 @@
+Tema Analiza Algoritmilor - rezolvarea sistemelor de ecuatii liniare
+
+Realizat de: Buzea Alexandru-Mihai-Iulian, grupa 321CAb, anul universitar
+2021-2022
+
+    In cadrul etapei 0, am ales sa implementez 4 algoritmi folositi in
+rezolvarea sistemelor de ecuatii liniare: Householder, eliminarea gaussiana
+(in cele 2 variante cele mai intalnire: eliminarea gaussiana cu pivotare
+partiala si eliminarea guassiana cu pivotare partiala cu pivot scalat) si
+metoda gradientului conjugat (metoda moderna, care cauta solutia intr-un
+subspatiu de tip Krylov si o gaseste in maximum n pasi).
+
+    Primele fisiere scrise au fost generate_input_tests.m si
+generate_output_tests.m. Aceste doua scripturi sunt folosite (dupa cum
+sugereaza si numele) pentru a genera fisierele de input si output pentru teste
+in cele doua directoare, in/ si out/. M-am folosit in principiu de generarea
+unor matrice aleatoare folosind rand() (am ales testarea numai cu numere reale,
+deoarece aceasta este cea mai relevanta pentru situatiile practice - numerele
+intregi sunt intalnite ca coeficienti ai sistemelor de ecuatii doar in
+exemplele cu caracter didactic). Din acelasi considerent, am renuntat si la
+analiza existentei solutiilor sistemului de ecuatii, intrucat matricele
+obtinute in situatii practice sunt bine conditionate (sunt nesingulare si nu
+pot prezenta nicio problema la rezolvarea de sisteme).
+    P. S. Am incercat sa abordez si acest aspect, insa obtineam pentru cel
+putin cateva teste rezultate gresite - am sa descriu mai tarziu ce probleme
+am avut.
+
+    Urmatoarele functii scrise au fost parse_system (gasita in parse_system.m),
+write_solution (gasita in write_solution.m), write_matrix (gasita in
+write_matrix.m), functii care au rolul de a asigura partea de I/O (se ocupa
+cu citirea si scrierea matricelor si solutiilor in si din fisiere).
+
+    Apoi, pentru fiecare dintre cei 4 algoritmi, am generat cate un script, de
+forma solve_*.m (unde * inlocuieste numele prescurtat al unui algoritm) si cate
+o functie de rezolvare efectiva, care poate fi Householder (Householder.m),
+GPP (GPP.m), GPPS (GPPS.m), conjugate_gradient (in conjugate_gradient.m).
+Fiecare functie s-a ocupat de implementarea algoritmului in mod specific, asa
+cum este el intalnit in practica. Pentru algoritmii exacti (Householder si
+Gauss), am folosit si functia SST.m, care rezolva un sistem superior
+triunghiular.
+
+    Mod de verificare:
+    - se ruleaza scriptul generate_input_tests.m pentru a genera testele de
+      input
+    - se ruleaza scriptul generate_output_tests.m pentru a genera testele de
+      output bazate pe cele de input
+    - se ruleaza apoi checkerul cu comanda:
+      -> python3 ./checker.py --algo [best/run-p1-4] --task 10
+    - se observa ca toate testele trec, deci implementarea a fost corecta.
+      Exceptie face metoda gradientului conjugat, care rezolva numai sisteme
+      pozitiv-definite si deci va rezolva corect numai testele 31-50.
+
+    Alte precizari:
+    - tema a fost scrisa in limbajul Octave. Aceasta poate fi rulata si in
+      Matlab, cu un anumit grad de compatibilitate
+    - tema a fost rulata si testata intr-un mediu Linux (Ubuntu 20.04 LTS).
+    - Am modificat checkerul, astfel sa nu ne mai afiseze acel warning pentru
+      lipsa regulii de build (limbaj interpretat).
+    - De asemenea, am modificat lista de reguli existente in Makefile la
+      run-p1-4.
+    - Versiunea de Octave folosita a fost GNU Octave 5.2.0.
+    - Pentru metoda gradientului conjugat (run-p4), 30 de teste dau eroare
+      tocmai pentru ca aceasta metoda a fost conceputa sa nu rezolve orice
+      fel de sisteme, ci doar pe cele pozitiv definite. Se poate observa
+      ca toate testele trecute sunt in intervalul 31-50.
+
+    Probleme intampinate:
+    - am avut foarte mari probleme la determinarea compatibilitatii unui sistem
+      de ecuatii liniare (sa arat ca este compatibil/incompatibil). Initial,
+      scrisesem functia de SST astfel incat sa ia in vedere si aceste aspecte,
+      insa nu mi-a fost de ajutor, deoarece la fiecare set de teste nou generat
+      aveam cel putin 3-4 teste care picau, din cauza numarului de conditionare
+      al matricei mare (de ordinul 10^4 - 10^5),
+    - matricele generate initial pentru sisteme fara solutie unica foloseau
+      teorema de rang (orice matrice poate fi scrisa sub forma A = P * D * Q,
+      unde P si Q sunt matrice inversabile, iar D este o matrice diagonala care
+      are numai 1 pe diagonala - iar numarul de valori de 1 este egal cu
+      rank(A)). Cu toate acestea, la scrierea in fisiere Octave face o aproximare
+      a numerelor (le scrie cu doar 5-6 zecimale), iar matricele deveneau ca
+      prin minune nesingulare, dar cu un numar de conditionare foarte mare
+      (aici aveam probleme de genul sistem compatibil nedeterminat care era
+      clasificat drept incompatibil).
